@@ -1,0 +1,25 @@
+{
+	"name": "SkyRTC",
+	"version": "0.0.1",
+	"description": "A server-side webRTC lib to build real-time communications in browser",
+	"main": "SkyRTC.js",
+	"author": {
+		"name": "skyinlayer",
+		"email": "lingyucoder@gmail.com"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"ws": ">= 0.0.0",
+		"node-uuid": ">= 1.4.1",
+		"express": "3.1.0"
+	},
+	"keywords": [
+		"webrtc"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/lingyucoder/SkyRTC.git"
+	},
+	"readmeFilename": "README.md",
+	"homepage": "https://github.com/lingyucoder/SkyRTC"
+}
