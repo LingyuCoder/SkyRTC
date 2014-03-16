@@ -18,8 +18,8 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/lingyucoder/SkyRTC.git"
+		"url": "git://github.com/LingyuCoder/SkyRTC.git"
 	},
 	"readmeFilename": "README.md",
-	"homepage": "https://github.com/lingyucoder/SkyRTC"
+	"homepage": "https://github.com/LingyuCoder/SkyRTC"
 }
