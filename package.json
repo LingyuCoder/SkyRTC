@@ -1,6 +1,6 @@
 {
-	"name": "SkyRTC",
-	"version": "0.0.1",
+	"name": "skyrtc",
+	"version": "0.0.2",
 	"description": "A server-side webRTC lib to build real-time communications in browser",
 	"main": "SkyRTC.js",
 	"author": {

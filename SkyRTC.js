@@ -2,19 +2,22 @@ var WebSocketServer = require('ws').Server;
 var UUID = require('node-uuid');
 var events = require('events');
 var util = require('util');
-var errorCb = function(error) {
-	if (error) {
-		console.log(error);
-	}
+var errorCb = function(rtc) {
+	return function(error) {
+		if (error) {
+			rtc.emit("error", error);
+		}
+	};
 };
 
 function SkyRTC() {
 	this.sockets = [];
 	this.rooms = {};
 	this.on('__join', function(data, socket) {
+		console.log(this.sockets.length);
 		var ids = [],
 			i, m,
-			room = data.room || "",
+			room = data.room || "__default",
 			curSocket,
 			curRoom;
 
@@ -45,7 +48,7 @@ function SkyRTC() {
 			}
 		}), errorCb);
 
-		this.emit('new_peer', socket, room, this);
+		this.emit('new_peer', socket, room);
 	});
 
 	this.on('__ice_candidate', function(data, socket) {
@@ -61,7 +64,7 @@ function SkyRTC() {
 				}
 			}), errorCb);
 
-			this.emit('get_ice_candidate', this);
+			this.emit('ice_candidate', socket, data);
 		}
 	});
 
@@ -77,7 +80,7 @@ function SkyRTC() {
 				}
 			}), errorCb);
 		}
-		this.emit('send_offer', this);
+		this.emit('offer', socket, data);
 	});
 
 	this.on('__answer', function(data, socket) {
@@ -90,7 +93,7 @@ function SkyRTC() {
 					"socketId": socket.id
 				}
 			}), errorCb);
-			this.emit('send_answer', this);
+			this.emit('answer', socket, data);
 		}
 	});
 }
@@ -110,20 +113,6 @@ SkyRTC.prototype.removeSocket = function(socket) {
 		this.rooms[room].splice(i, 1);
 		if (this.rooms[room].length === 0) {
 			delete this.rooms[room];
-		}
-	}
-};
-
-SkyRTC.prototype.broadcastInRoom = function(socket, data, errorCb) {
-	var room = socket.room,
-		curRoom,
-		i;
-	if (room) {
-		curRoom = this.rooms[room];
-		for (i = curRoom.length; i--;) {
-			if (curRoom[i].id !== socket.id) {
-				curRoom[i].send(data, errorCb);
-			}
 		}
 	}
 };
@@ -179,7 +168,7 @@ SkyRTC.prototype.init = function(socket) {
 		if (json.eventName) {
 			that.emit(json.eventName, json.data, socket);
 		} else {
-			that.emit("socket_message", json);
+			that.emit("socket_message", socket, data);
 		}
 	});
 	//连接关闭后从SkyRTC实例中移除连接，并通知其他连接
@@ -206,7 +195,7 @@ SkyRTC.prototype.init = function(socket) {
 
 		that.emit('remove_peer', socket.id, that);
 	});
-	that.emit('new_connect', that);
+	that.emit('new_connect', socket);
 };
 
 module.exports.listen = function(server) {
@@ -222,7 +211,7 @@ module.exports.listen = function(server) {
 	}
 
 	SkyRTCServer.rtc = new SkyRTC();
-
+	errorCb = errorCb(SkyRTCServer.rtc);
 	SkyRTCServer.on('connection', function(socket) {
 		this.rtc.init(socket);
 	});
